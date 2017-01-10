@@ -1,5 +1,7 @@
 import * as TOOLS from './tools.class.js'
 import * as THREE from 'three'
+import Ring from './ring.class.js'
+
 
 class THREE_Controller {
 
@@ -25,9 +27,10 @@ class THREE_Controller {
         this.init_event()
         this.init_loader()
         this.load_mesh()
+        this.init_rings()
+        this.init_lights()
         this.init_mirror_mesh()
-        this.init_dummy()
-
+        // this.init_dummy()
         this.update()
 
     }
@@ -35,9 +38,20 @@ class THREE_Controller {
     init_loader() {
 
         this.manager = new THREE.LoadingManager();
-		this.manager.onProgress = function ( item, loaded, total ) {
-			console.log( item, loaded, total );
-		};
+		    this.manager.onProgress = function ( item, loaded, total ) {
+			       console.log( item, loaded, total );
+        };
+
+    }
+
+    init_lights(){
+
+        var light = new THREE.PointLight({
+            color: 0xFFFFFF
+        })
+
+        light.position.set(50, 30, 0)
+        this.scene.add(light)
 
     }
 
@@ -50,6 +64,18 @@ class THREE_Controller {
 
     }
 
+    init_rings(){
+
+        this.ring = new Ring({
+            rotation: {
+                x: Math.PI/4,
+                y: 0,
+                z: 0
+            }
+        })
+        this.scene.add(this.ring)
+    }
+
     load_mesh(){
         var that = this
 
@@ -60,23 +86,26 @@ class THREE_Controller {
         this.scene.add(this.mesh)
 
         var loader = new THREE.OBJLoader( this.manager );
-		loader.load( 'assets/statue.obj', function ( object ) {
+		    loader.load( 'assets/statue_low_smth.obj', function ( object ) {
 
                 var obj = object
                 that.mesh.add(obj)
 
-                var material = new THREE.MeshBasicMaterial( {
+                var material = new THREE.MeshPhongMaterial( {
                     color: 0x82b2ca,
                     envMap: that.mirror_mesh.camera.renderTarget.texture,
                     shading: THREE.SmoothShading,
-                    reflectivity: .95,
-                    combine: THREE.Multiply
+                    reflectivity: .85
+                    // combine: THREE.Multiply
                 } );
 
     			obj.traverse( function ( child ) {
-    				if ( child instanceof THREE.Mesh ) {
-    					child.material = material
-    				}
+      				if ( child instanceof THREE.Mesh ) {
+                    //  child.geometry.mergeVertices()
+                    //  child.geometry.computeVertexNormals()
+                     console.log(child);
+      					     child.material = material
+      				}
     			} );
 
     			// obj.position.x = - 60;
@@ -176,6 +205,10 @@ class THREE_Controller {
 
         if (this.mesh != undefined) {
             this.mesh.update()
+        }
+
+        if (this.ring != undefined) {
+            this.ring.update()
         }
 
         // camera

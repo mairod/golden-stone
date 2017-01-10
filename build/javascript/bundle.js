@@ -7,6 +7,89 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _three = require('three');
+
+var THREE = _interopRequireWildcard(_three);
+
+var Ring = (function () {
+    function Ring(options) {
+        _classCallCheck(this, Ring);
+
+        this.options = options || {};
+        this.position = this.options.position || { x: 0, y: 0, z: 0 };
+        this.rotation = this.options.rotation || { x: 0, y: 0, z: 0 };
+        this.scale = this.options.scale || { x: 1, y: 1, z: 1 };
+        this.size = this.options.size || { radius: 50, pipe: 2 };
+        this.offset = this.options.offset || { x: 0, y: 0, z: 0 };
+        this.object = new THREE.Group();
+
+        this.init_material();
+        this.init_object();
+
+        return this.object;
+    }
+
+    Ring.prototype.init_material = function init_material() {
+
+        var glsl = require('glslify');
+
+        var vertex_shader = glsl(["#define GLSLIFY 1\nvarying vec3 e;\nvarying vec3 n;\n\nvoid main() {\n\n  e = normalize( vec3( modelViewMatrix * vec4( position, 1.0 ) ) );\n  n = normalize( normalMatrix * normal );\n\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1. );\n\n}\n"]);
+        var fragment_shader = glsl(["#define GLSLIFY 1\nuniform sampler2D tMatCap;\n\nvarying vec3 e;\nvarying vec3 n;\n\nvoid main() {\n\n  vec3 r = reflect( e, n );\n  //r = e - 2. * dot( n, e ) * n;\n  float m = 2. * sqrt( pow( r.x, 2. ) + pow( r.y, 2. ) + pow( r.z + 1., 2. ) );\n  vec2 vN = r.xy / m + .5;\n\n  vec3 base = texture2D( tMatCap, vN ).rgb;\n\n  gl_FragColor = vec4( base, 1. );\n\n}\n"]);
+        var matcap = new THREE.TextureLoader().load('assets/matcap.png');
+
+        this.material = new THREE.ShaderMaterial({
+            uniforms: {
+                tMatCap: {
+                    type: 't',
+                    value: matcap
+                }
+            },
+            vertexShader: vertex_shader,
+            fragmentShader: fragment_shader,
+            shading: THREE.SmoothShading
+        });
+    };
+
+    Ring.prototype.init_object = function init_object() {
+
+        var that = this;
+
+        this.mesh = new THREE.TorusBufferGeometry(this.size.radius, this.size.pipe, 128, 64);
+        var object = new THREE.Mesh(this.mesh, this.material);
+
+        object.position.set(this.offset.x, this.offset.y, this.offset.z);
+        this.object.position.set(this.position.x, this.position.y, this.position.z);
+        object.rotation.set(this.rotation.x, this.rotation.y, this.rotation.z);
+        this.object.scale.set(this.scale.x, this.scale.y, this.scale.z);
+
+        this.object.add(object);
+        this.object.update = function () {
+            that.update();
+        };
+    };
+
+    Ring.prototype.update = function update() {
+
+        this.object.rotation.y += .01;
+    };
+
+    return Ring;
+})();
+
+exports['default'] = Ring;
+module.exports = exports['default'];
+
+},{"glslify":5,"three":7}],2:[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
 var _toolsClassJs = require('./tools.class.js');
 
 var TOOLS = _interopRequireWildcard(_toolsClassJs);
@@ -14,6 +97,10 @@ var TOOLS = _interopRequireWildcard(_toolsClassJs);
 var _three = require('three');
 
 var THREE = _interopRequireWildcard(_three);
+
+var _ringClassJs = require('./ring.class.js');
+
+var _ringClassJs2 = _interopRequireDefault(_ringClassJs);
 
 var THREE_Controller = (function () {
     function THREE_Controller(options) {
@@ -39,9 +126,10 @@ var THREE_Controller = (function () {
         this.init_event();
         this.init_loader();
         this.load_mesh();
+        this.init_rings();
+        this.init_lights();
         this.init_mirror_mesh();
-        this.init_dummy();
-
+        // this.init_dummy()
         this.update();
     }
 
@@ -53,12 +141,34 @@ var THREE_Controller = (function () {
         };
     };
 
+    THREE_Controller.prototype.init_lights = function init_lights() {
+
+        var light = new THREE.PointLight({
+            color: 0xFFFFFF
+        });
+
+        light.position.set(50, 30, 0);
+        this.scene.add(light);
+    };
+
     THREE_Controller.prototype.init_mirror_mesh = function init_mirror_mesh() {
         this.mirror_mesh = {};
 
         this.mirror_mesh.camera = new THREE.CubeCamera(0.1, 5000, 512);
         // this.mirror_mesh.camera.renderTarget.minFilter = THREE.LinearMipMapLinearFilter;
         this.scene.add(this.mirror_mesh.camera);
+    };
+
+    THREE_Controller.prototype.init_rings = function init_rings() {
+
+        this.ring = new _ringClassJs2['default']({
+            rotation: {
+                x: Math.PI / 4,
+                y: 0,
+                z: 0
+            }
+        });
+        this.scene.add(this.ring);
     };
 
     THREE_Controller.prototype.load_mesh = function load_mesh() {
@@ -71,21 +181,24 @@ var THREE_Controller = (function () {
         this.scene.add(this.mesh);
 
         var loader = new THREE.OBJLoader(this.manager);
-        loader.load('assets/statue.obj', function (object) {
+        loader.load('assets/statue_low_smth.obj', function (object) {
 
             var obj = object;
             that.mesh.add(obj);
 
-            var material = new THREE.MeshBasicMaterial({
+            var material = new THREE.MeshPhongMaterial({
                 color: 0x82b2ca,
                 envMap: that.mirror_mesh.camera.renderTarget.texture,
                 shading: THREE.SmoothShading,
-                reflectivity: .95,
-                combine: THREE.Multiply
+                reflectivity: .85
+                // combine: THREE.Multiply
             });
 
             obj.traverse(function (child) {
                 if (child instanceof THREE.Mesh) {
+                    //  child.geometry.mergeVertices()
+                    //  child.geometry.computeVertexNormals()
+                    console.log(child);
                     child.material = material;
                 }
             });
@@ -187,6 +300,10 @@ var THREE_Controller = (function () {
             this.mesh.update();
         }
 
+        if (this.ring != undefined) {
+            this.ring.update();
+        }
+
         // camera
         this.direction.subVectors(this.mouse, this.cameraPosition);
         this.direction.multiplyScalar(.06);
@@ -204,7 +321,7 @@ var THREE_Controller = (function () {
 exports['default'] = THREE_Controller;
 module.exports = exports['default'];
 
-},{"./tools.class.js":2,"glslify":4,"three":6,"three-obj-loader":5}],2:[function(require,module,exports){
+},{"./ring.class.js":1,"./tools.class.js":3,"glslify":5,"three":7,"three-obj-loader":6}],3:[function(require,module,exports){
 //Global data storage
 'use strict';
 
@@ -549,7 +666,7 @@ Math.easing = {
     }
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -585,7 +702,7 @@ function animate() {
     framecounter.update();
 }
 
-},{"./components/three_controller.class.js":1,"./components/tools.class.js":2,"three":6}],4:[function(require,module,exports){
+},{"./components/three_controller.class.js":2,"./components/tools.class.js":3,"three":7}],5:[function(require,module,exports){
 module.exports = function(strings) {
   if (typeof strings === 'string') strings = [strings]
   var exprs = [].slice.call(arguments,1)
@@ -597,7 +714,7 @@ module.exports = function(strings) {
   return parts.join('')
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function (THREE) {
@@ -911,7 +1028,7 @@ module.exports = function (THREE) {
 
   };
 };
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -44257,4 +44374,4 @@ module.exports = function (THREE) {
 
 })));
 
-},{}]},{},[3]);
+},{}]},{},[4]);
