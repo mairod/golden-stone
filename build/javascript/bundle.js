@@ -728,7 +728,7 @@ audio_analyser.hide();
 STORAGE.audio = audio_analyser;
 
 audio_analyser.addControlPoint({
-    bufferPosition: 30
+    bufferPosition: 52
 });
 STORAGE.audio_controls = audio_analyser.controls;
 
