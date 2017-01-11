@@ -3,6 +3,8 @@
 
 exports.__esModule = true;
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -10,6 +12,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var _three = require('three');
 
 var THREE = _interopRequireWildcard(_three);
+
+var _worker_handlerClassJs = require('./worker_handler.class.js');
+
+var _worker_handlerClassJs2 = _interopRequireDefault(_worker_handlerClassJs);
 
 var Ring = (function () {
     function Ring(options) {
@@ -23,11 +29,28 @@ var Ring = (function () {
         this.offset = this.options.offset || { x: 0, y: 0, z: 0 };
         this.object = new THREE.Group();
 
+        this.init_worker();
         this.init_material();
         this.init_object();
 
         return this.object;
     }
+
+    Ring.prototype.init_worker = function init_worker() {
+        var test = true;
+        this.worker_task = new _worker_handlerClassJs2['default']({
+            work: function work(e) {
+                var input = e.data;
+                // console.log(input);
+                // input.test = Math.random() * 100
+                // console.log(this);
+                return input;
+            },
+            callback: function callback(e) {
+                //   console.log("Received: ", e.data);
+            }
+        });
+    };
 
     Ring.prototype.init_material = function init_material() {
 
@@ -71,6 +94,9 @@ var Ring = (function () {
     Ring.prototype.update = function update() {
 
         this.object.rotation.y += .01;
+        if (this.worker_task.ready == true) {
+            this.worker_task.run_with({ test: "Wesh" });
+        }
     };
 
     return Ring;
@@ -79,7 +105,7 @@ var Ring = (function () {
 exports['default'] = Ring;
 module.exports = exports['default'];
 
-},{"glslify":5,"three":7}],2:[function(require,module,exports){
+},{"./worker_handler.class.js":4,"glslify":6,"three":8}],2:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -129,6 +155,7 @@ var THREE_Controller = (function () {
         this.init_rings();
         this.init_lights();
         this.init_mirror_mesh();
+        this.init_floor();
         // this.init_dummy()
         this.update();
     }
@@ -143,12 +170,25 @@ var THREE_Controller = (function () {
 
     THREE_Controller.prototype.init_lights = function init_lights() {
 
-        var light = new THREE.PointLight({
-            color: 0xFFFFFF
-        });
+        this.light = new THREE.SpotLight(0xffffff);
 
-        light.position.set(50, 30, 0);
-        this.scene.add(light);
+        this.light.castShadow = true;
+        this.light.penumbra = .8;
+        this.light.power = Math.PI * .5;
+
+        this.light.castShadow = true;
+        this.light.shadow.camera.near = 1;
+        this.light.shadow.camera.far = 30;
+
+        this.light.position.set(200, 25, 0);
+        this.light.lookAt(new THREE.Vector3(30, 20, 0));
+        this.scene.add(this.light);
+
+        var time = 0;
+        this.light.update = function () {
+            time += .01;
+            this.power = Math.PI * Math.cos(time) / 4 + Math.PI * 1.7;
+        };
     };
 
     THREE_Controller.prototype.init_mirror_mesh = function init_mirror_mesh() {
@@ -171,6 +211,25 @@ var THREE_Controller = (function () {
         this.scene.add(this.ring);
     };
 
+    THREE_Controller.prototype.init_floor = function init_floor() {
+
+        var material = new THREE.MeshPhongMaterial({
+            color: 0x1c1d21,
+            shading: THREE.SmoothShading,
+            reflectivity: .85
+        });
+
+        var geom = new THREE.PlaneBufferGeometry(1300, 1300, 2, 2);
+
+        this.floor = new THREE.Mesh(geom, material);
+        this.floor.rotation.x = -Math.PI / 2;
+        this.floor.position.y = -58;
+        this.floor.castShadow = true;
+        this.floor.receiveShadow = true;
+
+        this.scene.add(this.floor);
+    };
+
     THREE_Controller.prototype.load_mesh = function load_mesh() {
         var that = this;
 
@@ -191,21 +250,16 @@ var THREE_Controller = (function () {
                 envMap: that.mirror_mesh.camera.renderTarget.texture,
                 shading: THREE.SmoothShading,
                 reflectivity: .85
-                // combine: THREE.Multiply
             });
 
             obj.traverse(function (child) {
                 if (child instanceof THREE.Mesh) {
-                    //  child.geometry.mergeVertices()
-                    //  child.geometry.computeVertexNormals()
-                    console.log(child);
                     child.material = material;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
                 }
             });
 
-            // obj.position.x = - 60;
-            // obj.rotation.x = 20* Math.PI / 180;
-            // obj.rotation.z = 20* Math.PI / 180;
             obj.scale.x = .8;
             obj.scale.y = .8;
             obj.scale.z = .8;
@@ -214,7 +268,6 @@ var THREE_Controller = (function () {
         });
 
         this.mesh.update = function () {
-            // mirror update
             this.visible = false;
             that.mirror_mesh.camera.updateCubeMap(that.renderer, that.scene);
             this.visible = true;
@@ -227,12 +280,21 @@ var THREE_Controller = (function () {
     };
 
     THREE_Controller.prototype.init_environement = function init_environement() {
+
+        this.scene.fog = new THREE.FogExp2(0x101010, 0.0028);
+
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true
         });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
+
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.renderer.shadowMapWidth = 1024;
+        this.renderer.shadowMapHeight = 1024;
+
         this.container.appendChild(this.renderer.domElement);
     };
 
@@ -276,6 +338,8 @@ var THREE_Controller = (function () {
         this.dummy = new THREE.Mesh(new THREE.TorusKnotGeometry(20, 3, 400, 15, 8, 14), material);
         this.dummy.position.set(0, 0, 0);
         this.dummy.rotation.set(Math.PI / 4, 0, Math.PI / 3);
+        this.dummy.castShadow = true;
+        this.dummy.receiveShadow = true;
         this.scene.add(this.dummy);
         console.log(this.dummy);
 
@@ -295,13 +359,14 @@ var THREE_Controller = (function () {
         if (this.dummy != undefined) {
             this.dummy.update();
         }
-
         if (this.mesh != undefined) {
             this.mesh.update();
         }
-
         if (this.ring != undefined) {
             this.ring.update();
+        }
+        if (this.light != undefined) {
+            this.light.update();
         }
 
         // camera
@@ -321,7 +386,7 @@ var THREE_Controller = (function () {
 exports['default'] = THREE_Controller;
 module.exports = exports['default'];
 
-},{"./ring.class.js":1,"./tools.class.js":3,"glslify":5,"three":7,"three-obj-loader":6}],3:[function(require,module,exports){
+},{"./ring.class.js":1,"./tools.class.js":3,"glslify":6,"three":8,"three-obj-loader":7}],3:[function(require,module,exports){
 //Global data storage
 'use strict';
 
@@ -667,6 +732,66 @@ Math.easing = {
 };
 
 },{}],4:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Worker_handler = (function () {
+    function Worker_handler(options) {
+        _classCallCheck(this, Worker_handler);
+
+        this.options = options;
+        this.work = this.options.work;
+        this.callback = this.options.callback;
+        this.ready = false;
+
+        this.init_work();
+        this.init_worker();
+    }
+
+    Worker_handler.prototype.init_work = function init_work() {
+        var callback = String(this.work);
+
+        callback = callback.replace("function work(e) {", "");
+        callback = callback.replace("}", "");
+        callback = callback.replace(/\;/g, "");
+
+        var tmp = callback.split("return");
+
+        tmp.splice(1, 0, "self.postMessage(");
+        tmp.splice(3, 0, ");");
+        tmp.splice(0, 0, "self.onmessage = function(e) {");
+        tmp.push("};");
+
+        this.work_adapted = tmp.join("");
+    };
+
+    Worker_handler.prototype.init_worker = function init_worker() {
+        var that = this;
+        var blob = new Blob([this.work_adapted], { type: "text/javascript" });
+        this.worker = new Worker(window.URL.createObjectURL(blob));
+        this.worker.onmessage = function (e) {
+            that.callback(e);
+        };
+        var that = this;
+        setTimeout(function () {
+            that.ready = true;
+        }, 10);
+    };
+
+    Worker_handler.prototype.run_with = function run_with(input) {
+        this.worker.postMessage(input);
+    };
+
+    return Worker_handler;
+})();
+
+exports["default"] = Worker_handler;
+module.exports = exports["default"];
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -702,7 +827,7 @@ function animate() {
     framecounter.update();
 }
 
-},{"./components/three_controller.class.js":2,"./components/tools.class.js":3,"three":7}],5:[function(require,module,exports){
+},{"./components/three_controller.class.js":2,"./components/tools.class.js":3,"three":8}],6:[function(require,module,exports){
 module.exports = function(strings) {
   if (typeof strings === 'string') strings = [strings]
   var exprs = [].slice.call(arguments,1)
@@ -714,7 +839,7 @@ module.exports = function(strings) {
   return parts.join('')
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = function (THREE) {
@@ -1028,7 +1153,7 @@ module.exports = function (THREE) {
 
   };
 };
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -44374,4 +44499,4 @@ module.exports = function (THREE) {
 
 })));
 
-},{}]},{},[4]);
+},{}]},{},[5]);

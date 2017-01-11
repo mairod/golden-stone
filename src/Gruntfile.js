@@ -69,6 +69,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-browser-sync');
 
-    grunt.registerTask("default", ["browserSync", "watch"]);
+    grunt.registerTask("default", ["watch"]);
+    // grunt.registerTask("default", ["browserSync", "watch"]);
     grunt.registerTask("build", ["browserify", "compass", "notify:build"]);
 };

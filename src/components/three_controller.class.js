@@ -30,6 +30,7 @@ class THREE_Controller {
         this.init_rings()
         this.init_lights()
         this.init_mirror_mesh()
+        this.init_floor()
         // this.init_dummy()
         this.update()
 
@@ -46,12 +47,25 @@ class THREE_Controller {
 
     init_lights(){
 
-        var light = new THREE.PointLight({
-            color: 0xFFFFFF
-        })
+        this.light = new THREE.SpotLight( 0xffffff )
 
-        light.position.set(50, 30, 0)
-        this.scene.add(light)
+        this.light.castShadow = true
+        this.light.penumbra = .8
+        this.light.power = Math.PI * .5
+
+        this.light.castShadow = true
+    	this.light.shadow.camera.near = 1
+    	this.light.shadow.camera.far = 30
+
+        this.light.position.set(200, 25, 0)
+        this.light.lookAt(new THREE.Vector3(30,20,0))
+        this.scene.add(this.light)
+
+        var time = 0
+        this.light.update = function(){
+            time += .01
+            this.power = ((Math.PI * Math.cos(time)) / 4) + (Math.PI * 1.7)
+        }
 
     }
 
@@ -74,6 +88,27 @@ class THREE_Controller {
             }
         })
         this.scene.add(this.ring)
+
+    }
+
+    init_floor(){
+
+        var material = new THREE.MeshPhongMaterial( {
+            color: 0x1c1d21,
+            shading: THREE.SmoothShading,
+            reflectivity: .85
+        } );
+
+        var geom = new THREE.PlaneBufferGeometry(1300, 1300, 2, 2)
+
+        this.floor = new THREE.Mesh(geom, material)
+        this.floor.rotation.x = - Math.PI / 2
+        this.floor.position.y = - 58
+        this.floor.castShadow = true
+        this.floor.receiveShadow = true
+
+        this.scene.add(this.floor)
+
     }
 
     load_mesh(){
@@ -96,30 +131,25 @@ class THREE_Controller {
                     envMap: that.mirror_mesh.camera.renderTarget.texture,
                     shading: THREE.SmoothShading,
                     reflectivity: .85
-                    // combine: THREE.Multiply
                 } );
 
     			obj.traverse( function ( child ) {
-      				if ( child instanceof THREE.Mesh ) {
-                    //  child.geometry.mergeVertices()
-                    //  child.geometry.computeVertexNormals()
-                     console.log(child);
-      					     child.material = material
-      				}
-    			} );
+      				  if ( child instanceof THREE.Mesh ) {
+  					       child.material = material
+                           child.castShadow = true
+                           child.receiveShadow = true
+      				  }
+			    } );
 
-    			// obj.position.x = - 60;
-                // obj.rotation.x = 20* Math.PI / 180;
-                // obj.rotation.z = 20* Math.PI / 180;
                 obj.scale.x = .8;
                 obj.scale.y = .8;
                 obj.scale.z = .8;
                 obj.position.set(0, -60, 0)
                 that.mirror_mesh.camera.position.set(0, -60, 0)
+
           } );
 
           this.mesh.update = function(){
-              // mirror update
               this.visible = false;
               that.mirror_mesh.camera.updateCubeMap( that.renderer, that.scene );
               this.visible = true;
@@ -132,12 +162,21 @@ class THREE_Controller {
     }
 
     init_environement() {
+
+        this.scene.fog = new THREE.FogExp2( 0x101010, 0.0028 )
+
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true
         });
         this.renderer.setPixelRatio(window.devicePixelRatio)
         this.renderer.setSize(this.width, this.height)
+
+        this.renderer.shadowMap.enabled = true
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+        this.renderer.shadowMapWidth = 1024
+        this.renderer.shadowMapHeight = 1024
+
         this.container.appendChild(this.renderer.domElement)
     }
 
@@ -182,6 +221,8 @@ class THREE_Controller {
         this.dummy = new THREE.Mesh(new THREE.TorusKnotGeometry(20, 3, 400, 15, 8, 14), material);
         this.dummy.position.set(0, 0, 0);
         this.dummy.rotation.set(Math.PI / 4, 0, Math.PI / 3);
+        this.dummy.castShadow = true
+        this.dummy.receiveShadow = true
         this.scene.add(this.dummy);
         console.log(this.dummy);
 
@@ -199,17 +240,10 @@ class THREE_Controller {
 
     update() {
 
-        if (this.dummy != undefined) {
-            this.dummy.update()
-        }
-
-        if (this.mesh != undefined) {
-            this.mesh.update()
-        }
-
-        if (this.ring != undefined) {
-            this.ring.update()
-        }
+        if ( this.dummy   != undefined ) { this.dummy.update() }
+        if ( this.mesh    != undefined ) { this.mesh.update()  }
+        if ( this.ring    != undefined ) { this.ring.update()  }
+        if ( this.light   != undefined ) { this.light.update()  }
 
         // camera
         this.direction.subVectors(this.mouse, this.cameraPosition)

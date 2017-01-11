@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import Worker_handler from './worker_handler.class.js'
 
 class Ring {
 
@@ -12,11 +13,28 @@ class Ring {
           this.offset                 = this.options.offset       || { x: 0, y:0, z:0 }
           this.object                 = new THREE.Group()
 
+          this.init_worker()
           this.init_material()
           this.init_object()
 
           return this.object
 
+    }
+
+    init_worker(){
+        var test = true
+        this.worker_task = new Worker_handler({
+            work: function(e){
+                var input = e.data
+                // console.log(input);
+                // input.test = Math.random() * 100
+                // console.log(this);
+                return input
+            },
+            callback: function(e) {
+            //   console.log("Received: ", e.data);
+            }
+        })
     }
 
     init_material(){
@@ -63,6 +81,9 @@ class Ring {
     update(){
 
         this.object.rotation.y += .01
+        if (this.worker_task.ready == true) {
+            this.worker_task.run_with({test: "Wesh"})
+        }
 
     }
 }
