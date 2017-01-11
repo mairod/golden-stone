@@ -47,6 +47,7 @@ class THREE_Controller {
                 STORAGE.audio.play()
                 console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
                 console.log("%cPress \"@\" to show/hide devs tools", "padding: 10px; margin-bottom: 10px; color: #262626; font-size: 20px; font-family: sans-serif;")
+                console.log("%cThe code is avaliable at : https://github.com/mairod/golden-stone", "padding: 10px; margin-bottom: 10px; color: #262626; font-size: 20px; font-family: sans-serif;")
                 setTimeout(function () {
                   var loader = document.querySelector('.loader')
                   var link = document.querySelector('h2.credits')
