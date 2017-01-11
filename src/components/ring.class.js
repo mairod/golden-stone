@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import Worker_handler from './worker_handler.class.js'
 
 class Ring {
 
@@ -13,28 +12,10 @@ class Ring {
           this.offset                 = this.options.offset       || { x: 0, y:0, z:0 }
           this.object                 = new THREE.Group()
 
-          this.init_worker()
           this.init_material()
           this.init_object()
-
           return this.object
 
-    }
-
-    init_worker(){
-        var test = true
-        this.worker_task = new Worker_handler({
-            work: function(e){
-                var input = e.data
-                // console.log(input);
-                // input.test = Math.random() * 100
-                // console.log(this);
-                return input
-            },
-            callback: function(e) {
-            //   console.log("Received: ", e.data);
-            }
-        })
     }
 
     init_material(){
@@ -43,7 +24,7 @@ class Ring {
 
         const vertex_shader = glsl.file("../shaders/mat_cap.vert")
         const fragment_shader = glsl.file("../shaders/mat_cap.frag")
-        const matcap = new THREE.TextureLoader().load('assets/matcap.png')
+        const matcap = new THREE.TextureLoader( STORAGE.manager ).load('assets/gold.png')
 
         this.material = new THREE.ShaderMaterial({
             uniforms: {
@@ -56,6 +37,8 @@ class Ring {
             fragmentShader: fragment_shader,
             shading: THREE.SmoothShading
         });
+        this.material.canvas = this.matcap
+
 
     }
 
@@ -65,6 +48,8 @@ class Ring {
 
         this.mesh = new THREE.TorusBufferGeometry(this.size.radius, this.size.pipe, 128, 64)
         var object = new THREE.Mesh(this.mesh, this.material)
+        object.castShadow = true
+        object.receiveShadow = false
 
         object.position.set(this.offset.x, this.offset.y, this.offset.z)
         this.object.position.set(this.position.x, this.position.y, this.position.z)
@@ -81,8 +66,9 @@ class Ring {
     update(){
 
         this.object.rotation.y += .01
-        if (this.worker_task.ready == true) {
-            this.worker_task.run_with({test: "Wesh"})
+        if ( this.matcap_canvas != undefined && this.material != undefined) {
+            this.material.canvas.needsUpdate = true
+            this.matcap_canvas.update()
         }
 
     }

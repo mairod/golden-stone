@@ -4,13 +4,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Test</title>
+  <title>Stone dance</title>
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400" rel="stylesheet">
   <link rel="stylesheet" href="stylesheets/main.css">
 </head>
 <body>
 
+    <div class="loader">
+      <svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+       viewBox="500 0 1000 1000" enable-background="new 500 0 1000 1000" xml:space="preserve">
+      <g>
+      <path stroke-width="5" stroke-miterlimit="10" d="M922.1,956.3
+        c-126.2-71.8-249.9-141-376.1-212.8c-12.4-7.4-14.8-12.4-14.8-24.7c0-207.8,0-415.7,0-623.5c0-12.4,2.5-19.8,14.8-24.7
+        c19.8-10,39.6-22.3,61.9-37.2c0,9.9,0,14.8,0,22.3c0,200.4,0,403.3,0,603.7c0,12.4,4.9,19.8,14.8,27.2
+        C724.1,743.5,825.6,800.4,927,857.3c9.9,4.9,14.8,12.4,14.8,24.7c0,29.7,0,56.9,0,84.1C941.9,968.7,927.4,959.3,922.1,956.3z"/>
+      <path stroke-width="5" stroke-miterlimit="10" d="M934.4,721.2c-49.5-29.7-96.5-56.9-146-84.1
+        c-27.2-14.8-54.4-32.2-81.6-47c-7.4-4.9-12.4-9.9-12.4-19.8c0-116.3,0-232.6,0-348.9c0-4.9,2.5-14.8,7.4-17.3
+        C778.5,159.6,855.2,115,934.4,68C934.4,288.3,934.4,503.5,934.4,721.2z M855.3,585.2c0-126.2,0-249.9,0-373.6
+        c-24.7,14.8-47,27.2-69.3,39.6c-4.9,4.9-12.4,12.4-12.4,19.8c0,84.1,0,170.7,0,254.8c0,4.9,2.5,12.4,7.4,14.8
+        C805.8,558,828.1,570.3,855.3,585.2z"/>
+      </g>
+      <g>
+      <path stroke-width="5" stroke-miterlimit="10" d="M1058.2,966.1c0-27.2,0-54.4,0-84.1
+        c0-12.3,4.9-19.8,14.8-24.7c101.4-56.9,202.9-113.8,304.3-170.7c9.9-7.4,14.8-14.8,14.8-27.2c0-200.4,0-403.3,0-603.7
+        c0-7.5,0-12.4,0-22.3c22.3,14.9,42.1,27.2,61.9,37.2c12.3,4.9,14.8,12.3,14.8,24.7c0,207.8,0,415.7,0,623.5
+        c0,12.3-2.4,17.3-14.8,24.7c-126.2,71.8-249.9,141-376.1,212.8C1073.1,959.1,1058.1,968.7,1058.2,966.1z"/>
+      <path stroke-width="5" stroke-miterlimit="10" d="M1065.6,68c79.2,47,155.9,91.6,232.6,136.1
+        c4.9,2.5,7.4,12.4,7.4,17.3c0,116.3,0,232.6,0,348.9c0,9.9-5,14.9-12.4,19.8c-27.2,14.8-54.4,32.2-81.6,47
+        c-49.5,27.2-96.5,54.4-146,84.1C1065.6,503.5,1065.6,288.3,1065.6,68z M1219,540.6c4.9-2.4,7.4-9.9,7.4-14.8
+        c0-84.1,0-170.7,0-254.8c0-7.4-7.5-14.9-12.4-19.8c-22.3-12.4-44.6-24.8-69.3-39.6c0,123.7,0,247.4,0,373.6
+        C1171.9,570.3,1194.2,558,1219,540.6z"/>
+      </g>
+      </svg>
+    </div>
+
+    <div class="credits-wrapper">
+       <h2 data-gold="Music : ASDEK - It Rains Over Paris" class="credits"><a href="https://soundcloud.com/asdek/asdek-it-rains-over-paris">Music : ASDEK - It Rains Over Paris</a></h2>
+    </div>
+
     <div id="container"></div>
 
+    <audio controls autostart="0" class="hidden">
+        <source src="assets/music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <script type="text/javascript">
+        window.STORAGE = {}
+    </script>
     <script src="javascript/bundle.js"></script>
 </body>
 </html>

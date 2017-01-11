@@ -21,17 +21,16 @@ class THREE_Controller {
         this.cameraEasing       = 40
         this.time               = 0
 
-        // this.init_loader()
+        this.init_loader()
         this.init_environement()
         this.init_camera()
         this.init_event()
+        this.init_reflective_map()
         this.init_loader()
         this.load_mesh()
         this.init_rings()
         this.init_lights()
-        this.init_mirror_mesh()
         this.init_floor()
-        // this.init_dummy()
         this.update()
 
     }
@@ -39,8 +38,22 @@ class THREE_Controller {
     init_loader() {
 
         this.manager = new THREE.LoadingManager();
+        STORAGE.manager = this.manager
 		    this.manager.onProgress = function ( item, loaded, total ) {
-			       console.log( item, loaded, total );
+            var progress = Math.round((loaded / total) * 100)
+            var logo = document.querySelector('.loader svg')
+            logo.style.strokeDashoffset = (progress / 100) * 2500
+            if (progress == 100) {
+                STORAGE.audio.play()
+                console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+                console.log("%cPress \"@\" to show/hide devs tools", "padding: 10px; margin-bottom: 10px; color: #262626; font-size: 20px; font-family: sans-serif;")
+                setTimeout(function () {
+                  var loader = document.querySelector('.loader')
+                  var link = document.querySelector('h2.credits')
+                  link.classList.add('active')
+                  loader.classList.add('hidden')
+                }, 2000);
+            }
         };
 
     }
@@ -54,8 +67,8 @@ class THREE_Controller {
         this.light.power = Math.PI * .5
 
         this.light.castShadow = true
-    	this.light.shadow.camera.near = 1
-    	this.light.shadow.camera.far = 30
+    	  this.light.shadow.camera.near = 1
+    	  this.light.shadow.camera.far = 30
 
         this.light.position.set(200, 25, 0)
         this.light.lookAt(new THREE.Vector3(30,20,0))
@@ -69,13 +82,10 @@ class THREE_Controller {
 
     }
 
-    init_mirror_mesh(){
+    init_reflective_map(){
         this.mirror_mesh = {}
-
         this.mirror_mesh.camera = new THREE.CubeCamera( 0.1, 5000, 512 );
-    	// this.mirror_mesh.camera.renderTarget.minFilter = THREE.LinearMipMapLinearFilter;
-    	this.scene.add( this.mirror_mesh.camera );
-
+    	  this.scene.add( this.mirror_mesh.camera );
     }
 
     init_rings(){
@@ -120,26 +130,34 @@ class THREE_Controller {
         this.mesh = new THREE.Group()
         this.scene.add(this.mesh)
 
+        const displacementMap = new THREE.TextureLoader( this.manager ).load('assets/perlin_noise.png')
+
+        this.mesh_material = new THREE.MeshPhongMaterial( {
+            color: 0x82b2ca,
+            envMap: this.mirror_mesh.camera.renderTarget.texture,
+            shading: THREE.SmoothShading,
+            reflectivity: .85,
+            displacementMap: displacementMap,
+            displacementScale: 0
+        } );
+
+        this.mesh_material.update = function(){
+            this.displacementScale = .5 + (STORAGE.audio_controls[0].strength * 14)
+        }
+
         var loader = new THREE.OBJLoader( this.manager );
 		    loader.load( 'assets/statue_low_smth.obj', function ( object ) {
 
                 var obj = object
                 that.mesh.add(obj)
 
-                var material = new THREE.MeshPhongMaterial( {
-                    color: 0x82b2ca,
-                    envMap: that.mirror_mesh.camera.renderTarget.texture,
-                    shading: THREE.SmoothShading,
-                    reflectivity: .85
-                } );
-
-    			obj.traverse( function ( child ) {
-      				  if ( child instanceof THREE.Mesh ) {
-  					       child.material = material
-                           child.castShadow = true
-                           child.receiveShadow = true
-      				  }
-			    } );
+          			obj.traverse( function ( child ) {
+            				  if ( child instanceof THREE.Mesh ) {
+        					       child.material = that.mesh_material
+                                 child.castShadow = true
+                                 child.receiveShadow = true
+            				  }
+      			    } );
 
                 obj.scale.x = .8;
                 obj.scale.y = .8;
@@ -154,6 +172,7 @@ class THREE_Controller {
               that.mirror_mesh.camera.updateCubeMap( that.renderer, that.scene );
               this.visible = true;
           }
+
     }
 
     init_camera() {
@@ -197,53 +216,12 @@ class THREE_Controller {
 
     }
 
-    init_dummy() {
-
-        var glsl = require('glslify')
-
-        const vertex_shader = glsl.file("../shaders/mat_cap.vert")
-        const fragment_shader = glsl.file("../shaders/mat_cap.frag")
-        const matcap = new THREE.TextureLoader().load('assets/matcap.png')
-
-        var material = new THREE.ShaderMaterial({
-            uniforms: {
-                tMatCap: {
-                    type: 't',
-                    value: matcap
-                }
-            },
-            vertexShader: vertex_shader,
-            fragmentShader: fragment_shader,
-            shading: THREE.SmoothShading
-        });
-
-        var that = this
-        this.dummy = new THREE.Mesh(new THREE.TorusKnotGeometry(20, 3, 400, 15, 8, 14), material);
-        this.dummy.position.set(0, 0, 0);
-        this.dummy.rotation.set(Math.PI / 4, 0, Math.PI / 3);
-        this.dummy.castShadow = true
-        this.dummy.receiveShadow = true
-        this.scene.add(this.dummy);
-        console.log(this.dummy);
-
-        this.dummy.time = 0
-        this.dummy.update = function() {
-            this.time += .02
-            that.dummy.rotation.x += .01
-            that.dummy.rotation.y += .02
-            that.dummy.position.x = Math.cos(this.time) * 100
-            that.dummy.position.y = Math.cos(this.time) * 20
-            that.dummy.position.z = Math.sin(this.time) * 100
-
-        }
-    }
-
     update() {
 
-        if ( this.dummy   != undefined ) { this.dummy.update() }
-        if ( this.mesh    != undefined ) { this.mesh.update()  }
-        if ( this.ring    != undefined ) { this.ring.update()  }
-        if ( this.light   != undefined ) { this.light.update()  }
+        if ( this.mesh                      != undefined ) { this.mesh.update() }
+        if ( this.ring                      != undefined ) { this.ring.update() }
+        if ( this.light                     != undefined ) { this.light.update() }
+        if ( this.mesh_material             != undefined ) { this.mesh_material.update() }
 
         // camera
         this.direction.subVectors(this.mouse, this.cameraPosition)

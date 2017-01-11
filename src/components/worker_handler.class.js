@@ -1,15 +1,28 @@
+/*
+
+var worker_task = new Worker_handler({
+    work: function(e){
+        var input = e.data
+        input.test = Math.random() * 100
+        console.log(input);
+        return input
+    },
+    callback: function(e) {
+        console.log("Received: ", e.data);
+    }
+})
+
+*/
+
 class Worker_handler {
 
     constructor(options) {
-
         this.options            = options
         this.work               = this.options.work
         this.callback           = this.options.callback
         this.ready              = false
-
         this.init_work()
         this.init_worker()
-
     }
 
     init_work(){

@@ -1,8 +1,12 @@
 @import "compass/reset";
 @import "compass/css3";
 
-body {
+html{
+    overflow: hidden;
+}
 
+body {
+  position: relative;
 }
 
 #container {
@@ -17,4 +21,142 @@ body {
 .fps {
     @include transform-origin(top, left);
     @include scale(.5);
+}
+
+audio {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+
+    &.hidden {
+        display: none;
+    }
+}
+
+.debug-light {
+    display: block !important;
+
+    &.hidden {
+        display: none !important;
+    }
+}
+
+.loader{
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background-color: #101010;
+
+    @include transition(all .9s cubic-bezier(0.440, 0.020, 0.140, 0.995));
+    &.hidden{
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    svg {
+        display: block;
+        width: 200px;
+        height: 200px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        fill: transparent;
+        stroke: white;
+        @include translate(-50%, -50%);
+        @include transition(all 1.5s cubic-bezier(0.440, 0.020, 0.140, 0.995));
+        stroke-dasharray: 2500;
+        stroke-dashoffset: 0;
+    }
+}
+
+.credits-wrapper{
+    position: fixed;
+    bottom: 40px;
+    left: 30px;
+    z-index: 80;
+}
+
+h2 {
+    display: block;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    margin: 0;
+    color: black;
+    position: absolute;
+    font-size: 15px;
+    width: 100vw;
+    height: 30px;
+    z-index: 80;
+    letter-spacing: 5px;
+    cursor: pointer;
+    @include translate(0, 5vw);
+    @include transition(all 1.2s cubic-bezier(0.440, 0.020, 0.140, 0.995));
+    @include transition-delay(.5s);
+    &.active{
+        @include translate(0, 0);
+    }
+    a{
+        color: black;
+        text-decoration: none;
+    }
+    @include transition(all .8s cubic-bezier(0.440, 0.020, 0.140, 0.995));
+    -webkit-filter: saturate(160%); /* Safari 6.0 - 9.0 */
+    filter: saturate(160%);
+    &.credits{
+        position: absolute;
+        font-size: 15px;
+        width: 100vw;
+        height: 30px;
+        z-index: 80;
+        letter-spacing: 10px;
+        cursor: pointer;
+        @include translate(0, 5vw);
+        @include transition(all 1.2s cubic-bezier(0.440, 0.020, 0.140, 0.995));
+        @include transition-delay(.5s);
+        &.active{
+            @include translate(0, 0);
+        }
+        a{
+            color: black;
+            text-decoration: none;
+        }
+    }
+}
+
+[data-gold] {
+    color: #ac733c; //fallback solid color
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+        color: transparent;
+        background-image: linear-gradient(to right, transparent 0%, transparent 45%,white 50%,transparent 55%,transparent 100%), linear-gradient(90deg, #c78c48, #cf9147 9.4%, #cf9348 9.4%, #b2763e 33.6%, #ad743c 35.7%, #ac723d 46.9%, #b0773d 51.7%, #b0793e 52.1%, #c4914c 64.6%, #c99750 68.5%, #ce9e54 73.2%, #f0c15c);
+        background-position: 110% 0%, 0 0;
+        background-size: 200% auto, auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+
+    &:before {
+        content: attr(data-gold);
+        color: #f0d8a9;
+        position: absolute;
+        z-index: -1;
+        top: -.08vw;
+        left: 0;
+        text-shadow: rgba(black, 1) 0 0.08vw 12px;
+    }
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+        &:after {
+            content: attr(data-gold);
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-image: linear-gradient(to bottom, transparent 0%,transparent 48%,rgba(#621000, .5) 50%,transparent 75%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+    }
 }

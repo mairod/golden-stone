@@ -1,4 +1,4 @@
-/* line 5, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 5, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -20,50 +20,60 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 
-/* line 22, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 22, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 html {
   line-height: 1;
 }
 
-/* line 24, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 24, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 ol, ul {
   list-style: none;
 }
 
-/* line 26, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 26, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
-/* line 28, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 28, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 caption, th, td {
   text-align: left;
   font-weight: normal;
   vertical-align: middle;
 }
 
-/* line 30, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 30, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 q, blockquote {
   quotes: none;
 }
-/* line 103, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 103, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 q:before, q:after, blockquote:before, blockquote:after {
   content: "";
   content: none;
 }
 
-/* line 32, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 32, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 a img {
   border: none;
 }
 
-/* line 116, ../../../../../.rvm/gems/ruby-2.1.2/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+/* line 116, ../../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
   display: block;
 }
 
+/* line 4, ../../src/sass/main.scss */
+html {
+  overflow: hidden;
+}
+
 /* line 8, ../../src/sass/main.scss */
+body {
+  position: relative;
+}
+
+/* line 12, ../../src/sass/main.scss */
 #container {
   position: fixed;
   width: 100%;
@@ -73,7 +83,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, main, menu,
   background-color: #101010;
 }
 
-/* line 17, ../../src/sass/main.scss */
+/* line 21, ../../src/sass/main.scss */
 .fps {
   -moz-transform-origin: top left;
   -ms-transform-origin: top left;
@@ -83,4 +93,194 @@ article, aside, details, figcaption, figure, footer, header, hgroup, main, menu,
   -ms-transform: scale(0.5, 0.5);
   -webkit-transform: scale(0.5, 0.5);
   transform: scale(0.5, 0.5);
+}
+
+/* line 26, ../../src/sass/main.scss */
+audio {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+}
+/* line 31, ../../src/sass/main.scss */
+audio.hidden {
+  display: none;
+}
+
+/* line 36, ../../src/sass/main.scss */
+.debug-light {
+  display: block !important;
+}
+/* line 39, ../../src/sass/main.scss */
+.debug-light.hidden {
+  display: none !important;
+}
+
+/* line 44, ../../src/sass/main.scss */
+.loader {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background-color: #101010;
+  -moz-transition: all 0.9s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -o-transition: all 0.9s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -webkit-transition: all 0.9s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  transition: all 0.9s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+}
+/* line 55, ../../src/sass/main.scss */
+.loader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+/* line 60, ../../src/sass/main.scss */
+.loader svg {
+  display: block;
+  width: 200px;
+  height: 200px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  fill: transparent;
+  stroke: white;
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  -moz-transition: all 1.5s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -o-transition: all 1.5s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -webkit-transition: all 1.5s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  transition: all 1.5s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  stroke-dasharray: 2500;
+  stroke-dashoffset: 0;
+}
+
+/* line 76, ../../src/sass/main.scss */
+.credits-wrapper {
+  position: fixed;
+  bottom: 40px;
+  left: 30px;
+  z-index: 80;
+}
+
+/* line 83, ../../src/sass/main.scss */
+h2 {
+  display: block;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  margin: 0;
+  color: black;
+  position: absolute;
+  font-size: 15px;
+  width: 100vw;
+  height: 30px;
+  z-index: 80;
+  letter-spacing: 5px;
+  cursor: pointer;
+  -moz-transform: translate(0, 5vw);
+  -ms-transform: translate(0, 5vw);
+  -webkit-transform: translate(0, 5vw);
+  transform: translate(0, 5vw);
+  -moz-transition: all 1.2s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -o-transition: all 1.2s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -webkit-transition: all 1.2s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  transition: all 1.2s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -moz-transition-delay: 0.5s;
+  -o-transition-delay: 0.5s;
+  -webkit-transition-delay: 0.5s;
+  transition-delay: 0.5s;
+  -moz-transition: all 0.8s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -o-transition: all 0.8s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -webkit-transition: all 0.8s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  transition: all 0.8s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -webkit-filter: saturate(160%);
+  /* Safari 6.0 - 9.0 */
+  filter: saturate(160%);
+}
+/* line 100, ../../src/sass/main.scss */
+h2.active {
+  -moz-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  -webkit-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+/* line 103, ../../src/sass/main.scss */
+h2 a {
+  color: black;
+  text-decoration: none;
+}
+/* line 110, ../../src/sass/main.scss */
+h2.credits {
+  position: absolute;
+  font-size: 15px;
+  width: 100vw;
+  height: 30px;
+  z-index: 80;
+  letter-spacing: 10px;
+  cursor: pointer;
+  -moz-transform: translate(0, 5vw);
+  -ms-transform: translate(0, 5vw);
+  -webkit-transform: translate(0, 5vw);
+  transform: translate(0, 5vw);
+  -moz-transition: all 1.2s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -o-transition: all 1.2s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -webkit-transition: all 1.2s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  transition: all 1.2s cubic-bezier(0.44, 0.02, 0.14, 0.995);
+  -moz-transition-delay: 0.5s;
+  -o-transition-delay: 0.5s;
+  -webkit-transition-delay: 0.5s;
+  transition-delay: 0.5s;
+}
+/* line 121, ../../src/sass/main.scss */
+h2.credits.active {
+  -moz-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  -webkit-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+/* line 124, ../../src/sass/main.scss */
+h2.credits a {
+  color: black;
+  text-decoration: none;
+}
+
+/* line 131, ../../src/sass/main.scss */
+[data-gold] {
+  color: #ac733c;
+}
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  /* line 131, ../../src/sass/main.scss */
+  [data-gold] {
+    color: transparent;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 45%, #ffffff 50%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0) 100%), linear-gradient(90deg, #c78c48, #cf9147 9.4%, #cf9348 9.4%, #b2763e 33.6%, #ad743c 35.7%, #ac723d 46.9%, #b0773d 51.7%, #b0793e 52.1%, #c4914c 64.6%, #c99750 68.5%, #ce9e54 73.2%, #f0c15c);
+    background-position: 110% 0%, 0 0;
+    background-size: 200% auto, auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+/* line 142, ../../src/sass/main.scss */
+[data-gold]:before {
+  content: attr(data-gold);
+  color: #f0d8a9;
+  position: absolute;
+  z-index: -1;
+  top: -.08vw;
+  left: 0;
+  text-shadow: black 0 0.08vw 12px;
+}
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  /* line 152, ../../src/sass/main.scss */
+  [data-gold]:after {
+    content: attr(data-gold);
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 48%, rgba(98, 16, 0, 0.5) 50%, rgba(0, 0, 0, 0) 75%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
 }
